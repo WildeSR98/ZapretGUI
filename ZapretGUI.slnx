@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ZapretGUI.Core/ZapretGUI.Core.csproj" />
+  <Project Path="ZapretGUI.AI/ZapretGUI.AI.csproj" />
+  <Project Path="ZapretGUI.Updater/ZapretGUI.Updater.csproj" />
+  <Project Path="ZapretGUI/ZapretGUI.csproj" />
+</Solution>

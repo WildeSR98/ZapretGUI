@@ -1,0 +1,8 @@
+﻿namespace ZapretGUI.AI.Models;
+
+public enum StrategyOrigin
+{
+    Builtin,
+    Evolved,
+    Manual
+}
