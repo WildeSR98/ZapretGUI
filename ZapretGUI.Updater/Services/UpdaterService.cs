@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -389,7 +389,15 @@ public sealed partial class UpdaterService : IUpdaterService
 
             try
             {
-                File.Copy(file, destFile, overwrite: true);
+                // Списки (lists/*.txt) мержим: объединяем уникальные строки
+                if (IsListFile(relativePath) && File.Exists(destFile))
+                {
+                    MergeListFile(file, destFile);
+                }
+                else
+                {
+                    File.Copy(file, destFile, overwrite: true);
+                }
             }
             catch (IOException)
             {
@@ -411,6 +419,57 @@ public sealed partial class UpdaterService : IUpdaterService
             onProgress($"⚠️ Не записаны: {string.Join(", ", failedFiles.Take(5))}");
 
         return failedFiles;
+    }
+
+    /// <summary>Проверяет, является ли файл списком (lists/*.txt) — такие файлы мержатся.</summary>
+    private static bool IsListFile(string relativePath)
+    {
+        var normalized = relativePath.Replace('\\', '/');
+        return normalized.StartsWith("lists/", StringComparison.OrdinalIgnoreCase)
+            && normalized.EndsWith(".txt", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Мержит списки: берёт все уникальные непустые строки из обоих файлов.
+    /// Пользовательские записи сохраняются, новые из обновления добавляются.
+    /// </summary>
+    private static void MergeListFile(string newFile, string existingFile)
+    {
+        var existingLines = File.ReadAllLines(existingFile)
+            .Select(l => l.Trim())
+            .Where(l => l.Length > 0);
+
+        var newLines = File.ReadAllLines(newFile)
+            .Select(l => l.Trim())
+            .Where(l => l.Length > 0);
+
+        var merged = new LinkedHashSet(existingLines, newLines);
+
+        File.WriteAllLines(existingFile, merged.Items);
+    }
+
+    /// <summary>Ordered unique set — сохраняет порядок: сначала существующие, потом новые.</summary>
+    private sealed class LinkedHashSet
+    {
+        public List<string> Items { get; }
+
+        public LinkedHashSet(IEnumerable<string> existing, IEnumerable<string> added)
+        {
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            Items = new List<string>();
+
+            foreach (var line in existing)
+            {
+                if (seen.Add(line))
+                    Items.Add(line);
+            }
+
+            foreach (var line in added)
+            {
+                if (seen.Add(line))
+                    Items.Add(line);
+            }
+        }
     }
 
     /// <summary>Пытается откатить engine/ из backup. Возвращает true при полном успехе.</summary>
