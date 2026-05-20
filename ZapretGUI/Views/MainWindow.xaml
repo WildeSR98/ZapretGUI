@@ -358,16 +358,23 @@
             <Setter Property="BorderBrush" Value="#1E2235"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="CaretBrush" Value="#C8D4EC"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <ScrollViewer x:Name="PART_ContentHost"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Focusable="false"
+                                              Padding="0"/>
+                            </Grid>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -1062,12 +1069,16 @@
                                                             </TextBlock>
                                                         </Border>
 
-                                                        <!-- Text -->
+                                                        <!-- Text + Profile Selector -->
                                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,0">
-                                                            <TextBlock Text="{Binding SelectedScriptName}"
-                                                                   FontFamily="Segoe UI" FontSize="11"
-                                                                   Foreground="#C0CEEC" FontWeight="SemiBold"
-                                                                   TextTrimming="CharacterEllipsis" MaxWidth="90"/>
+                                                            <ComboBox ItemsSource="{Binding Profiles}"
+                                                                      SelectedItem="{Binding SelectedProfile}"
+                                                                      DisplayMemberPath="DisplayName"
+                                                                      Height="24" FontSize="11" FontFamily="Segoe UI"
+                                                                      Foreground="#C0CEEC" Background="#0E1428"
+                                                                      BorderBrush="#1A1E30" BorderThickness="1"
+                                                                      MaxWidth="130" MinWidth="80"
+                                                                      VerticalContentAlignment="Center"/>
                                                             <TextBlock Text="Профиль"
                                                                    FontFamily="Segoe UI" FontSize="9.5"
                                                                    Foreground="#2E3C5A" Margin="0,2,0,0"/>
